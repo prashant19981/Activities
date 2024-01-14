@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, FormField, Label, Segment } from "semantic-ui-react";
+import { Button, Form, Segment } from "semantic-ui-react";
 import { useStore } from "../../../app/stores/store";
-import { observable, values } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useNavigate, useParams } from "react-router-dom";
 import { Activity } from "../../../app/models/activity";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
-import { v4 as uuid } from "uuid";
-import { ErrorMessage, Field, Formik } from "formik";
+import { Formik } from "formik";
 import * as Yup from 'yup';
+import TextInput from "../../../app/common/form/TextInput";
+import TextArea from "../../../app/common/form/TextArea";
 
 const ActivityForm = observer(() => {
     const { id } = useParams();
@@ -27,6 +27,11 @@ const ActivityForm = observer(() => {
 
     const validationSchema = Yup.object({
         title: Yup.string().required('The activity title is required'),
+        description: Yup.string().required('The activity description is required'),
+        category: Yup.string().required(),
+        date: Yup.string().required(),
+        city: Yup.string().required(),
+        venue: Yup.string().required()
 
     })
 
@@ -70,24 +75,19 @@ const ActivityForm = observer(() => {
     if (loading || !activity) return <LoadingComponent />
     return (
         <Segment clearing>
-            <Formik 
-            enableReinitialize 
-            validationSchema={validationSchema}
-            initialValues={activity} 
-            onSubmit={values => console.log(values)}>
+            <Formik
+                enableReinitialize
+                validationSchema={validationSchema}
+                initialValues={activity}
+                onSubmit={values => console.log(values)}>
                 {({ values: activity, handleChange, handleSubmit }) => (
                     <Form onSubmit={handleSubmit} autoComplete="off">
-                        <FormField>
-                            <Field onChange={handleFormChange} value={activity.title} name='title' placeholder='Title' />
-                            <ErrorMessage name="title"
-                            render={error=><Label basic color="red" content={error}/>}/>
-                        </FormField>
-
-                        <Field onChange={handleChange} value={activity.description} name='description' placeholder='Description' />
-                        <Field onChange={handleChange} value={activity.category} name='category' placeholder='Category' />
-                        <Field type="date" onChange={handleChange} value={activity.date} name='date' placeholder='Date' />
-                        <Field onChange={handleChange} value={activity.city} name='city' placeholder='City' />
-                        <Field onChange={handleChange} value={activity.venue} name='venue' placeholder='Venue' />
+                        <TextInput name='title' placeholder='Title' />
+                        <TextArea row={3} name='description' placeholder='Description' />
+                        <TextInput name='category' placeholder='Category' />
+                        <TextInput name='date' placeholder='Date' />
+                        <TextInput name='city' placeholder='City' />
+                        <TextInput name='venue' placeholder='Venue' />
                         <Button loading={submitting} floated="right" positive type="submit" content='Submit' />
                         <Button floated="right" positive type="submit" content='Cancel' />
                     </Form>
