@@ -9,6 +9,9 @@ import { Formik } from "formik";
 import * as Yup from 'yup';
 import TextInput from "../../../app/common/form/TextInput";
 import TextArea from "../../../app/common/form/TextArea";
+import SelectionInput from "../../../app/common/form/SelectionInput";
+import { categoryOptions } from "../../../app/common/options/categoryOptions";
+import DateInput from "../../../app/common/form/DateInput";
 
 const ActivityForm = observer(() => {
     const { id } = useParams();
@@ -18,7 +21,7 @@ const ActivityForm = observer(() => {
     const [activity, setActivity] = useState<Activity | undefined>({
         id: '',
         title: '',
-        date: '',
+        date: null,
         description: '',
         category: '',
         city: '',
@@ -84,8 +87,13 @@ const ActivityForm = observer(() => {
                     <Form onSubmit={handleSubmit} autoComplete="off">
                         <TextInput name='title' placeholder='Title' />
                         <TextArea row={3} name='description' placeholder='Description' />
-                        <TextInput name='category' placeholder='Category' />
-                        <TextInput name='date' placeholder='Date' />
+                        <SelectionInput options={categoryOptions} name='category' placeholder='Category' />
+                        <DateInput
+                            name='date' 
+                            placeholderText='Date'
+                            showTimeSelect
+                            timeCaption="time"
+                            dateFormat='MMMM d, yyyy h:mm aa' />
                         <TextInput name='city' placeholder='City' />
                         <TextInput name='venue' placeholder='Venue' />
                         <Button loading={submitting} floated="right" positive type="submit" content='Submit' />
