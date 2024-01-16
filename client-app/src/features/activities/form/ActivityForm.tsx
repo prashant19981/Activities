@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Segment } from "semantic-ui-react";
+import { Button, Form, Header, Segment } from "semantic-ui-react";
 import { useStore } from "../../../app/stores/store";
 import { observer } from "mobx-react-lite";
 import { useNavigate, useParams } from "react-router-dom";
@@ -12,7 +12,7 @@ import TextArea from "../../../app/common/form/TextArea";
 import SelectionInput from "../../../app/common/form/SelectionInput";
 import { categoryOptions } from "../../../app/common/options/categoryOptions";
 import DateInput from "../../../app/common/form/DateInput";
-
+import { v4 as uuid } from "uuid";
 const ActivityForm = observer(() => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -32,7 +32,7 @@ const ActivityForm = observer(() => {
         title: Yup.string().required('The activity title is required'),
         description: Yup.string().required('The activity description is required'),
         category: Yup.string().required(),
-        date: Yup.string().required(),
+        date: Yup.string().required('Date is required').nullable(),
         city: Yup.string().required(),
         venue: Yup.string().required()
 
@@ -48,55 +48,53 @@ const ActivityForm = observer(() => {
 
     }, [id, loadActivity]);
 
-    // function handleSubmit(){
+    function handleFormSubmit(activity: Activity) {
 
-    //     if(activity){
-    //         if(!activity.id){
-    //             activity.id = uuid();
-    //             createActivity(activity).then(()=>{
-    //                 navigate(`/activities/${activity.id}`);
-    //         })}
-    //         else{
-    //             updateActivity(activity).then(()=>{
-    //                 navigate(`/activities/${activity.id}`);
-    //             })
-    //         }
-    //     }
-
-    // }
-    function handleFormChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-        const { name, value } = event.target;
-
-
-        setActivity((prevState) => ({
-            ...(prevState as Activity),
-            [name]: value
-
-        }));
+        if (activity) {
+            if (!activity.id) {
+                activity.id = uuid();
+                createActivity(activity).then(() => {
+                    navigate(`/activities/${activity.id}`);
+                })
+            }
+            else {
+                updateActivity(activity).then(() => {
+                    navigate(`/activities/${activity.id}`);
+                })
+            }
+        }
 
     }
+
     if (loading || !activity) return <LoadingComponent />
     return (
         <Segment clearing>
+            <Header content='Activity Details' sub color='teal' />
             <Formik
                 enableReinitialize
                 validationSchema={validationSchema}
                 initialValues={activity}
-                onSubmit={values => console.log(values)}>
-                {({ values: activity, handleChange, handleSubmit }) => (
+                onSubmit={values => handleFormSubmit(values)}>
+                {({ handleSubmit, isValid, isSubmitting, dirty }) => (
                     <Form onSubmit={handleSubmit} autoComplete="off">
                         <TextInput name='title' placeholder='Title' />
                         <TextArea row={3} name='description' placeholder='Description' />
                         <SelectionInput options={categoryOptions} name='category' placeholder='Category' />
                         <DateInput
-                            name='date' 
+                            name='date'
                             placeholderText='Date'
                             showTimeSelect
                             timeCaption="time"
                             dateFormat='MMMM d, yyyy h:mm aa' />
+                        <Header content='Location Details' sub color='teal' />
                         <TextInput name='city' placeholder='City' />
                         <TextInput name='venue' placeholder='Venue' />
-                        <Button loading={submitting} floated="right" positive type="submit" content='Submit' />
+                        <Button
+                            disabled={isSubmitting || !dirty || !isValid}
+                            loading={submitting}
+                            floated="right"
+                            positive type="submit"
+                            content='Submit' />
                         <Button floated="right" positive type="submit" content='Cancel' />
                     </Form>
                 )}
