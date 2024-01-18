@@ -19,7 +19,7 @@ const ActvityDashboard = observer(() => {
         if(activityRegistry.size <= 1) setActivities();
 
     }, []);
-    if (loading) return <LoadingComponent></LoadingComponent>
+    if (loading) return <LoadingComponent content="Loading activities..."></LoadingComponent>
     return (
         <Grid>
             <Grid.Column width='10'>
