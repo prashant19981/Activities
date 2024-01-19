@@ -18,6 +18,8 @@ namespace Application.Activities
 
         public string HostUsername{get;set;}
 
+        public Boolean isCancelled {get;set;}
+
         public ICollection<Profile> Attendees{get;set;}
 
     }
