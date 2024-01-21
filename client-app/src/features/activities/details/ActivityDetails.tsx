@@ -24,8 +24,6 @@ const ActivityDetails = observer(() => {
     },[id]);
 
     if(loading || !selectedActivity){
-        console.log("Loading: ",loading);
-        console.log("Activity: ",selectedActivity);
         return<LoadingComponent/>;
     } 
     return(
@@ -36,7 +34,7 @@ const ActivityDetails = observer(() => {
             <ActivityDetailedChat/>
         </Grid.Column>
         <Grid.Column width={6}>
-            <ActivityDetailedSidebar attendees={selectedActivity.attendees!}/>
+            <ActivityDetailedSidebar activity={selectedActivity}/>
         </Grid.Column>
     </Grid>
     );

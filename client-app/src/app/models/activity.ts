@@ -8,7 +8,7 @@ export interface Activity {
     category: string
     city: string
     venue: string
-    hostUserName?:string
+    hostUsername?:string
     isCancelled?:boolean
     attendees?: Profile[]
     host?:Profile

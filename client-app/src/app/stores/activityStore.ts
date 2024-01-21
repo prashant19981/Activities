@@ -3,6 +3,8 @@ import { Activity } from "../models/activity";
 import agent from "../api/agent";
 import { v4 as uuid } from "uuid";
 import { format } from "date-fns";
+import { store } from "./store";
+import { Profile } from "../models/profile";
 
 export default class ActivityStore {
     activityRegistry = new Map<string, Activity>();
@@ -18,18 +20,18 @@ export default class ActivityStore {
             ((a, b) => a.date!.getTime() - b.date!.getTime());
     }
 
-    get groupedActivities(){
+    get groupedActivities() {
         return Object.entries(
-            this.activitiesByDate.reduce((activities,activity)=>{
-                const date = format(activity.date!,'dd MMM yyyy');
-                activities[date] = activities[date]?[...activities[date],activity]:[activity];
+            this.activitiesByDate.reduce((activities, activity) => {
+                const date = format(activity.date!, 'dd MMM yyyy');
+                activities[date] = activities[date] ? [...activities[date], activity] : [activity];
                 return activities;
-            },{} as {[key:string]: Activity[]})
+            }, {} as { [key: string]: Activity[] })
         )
     }
 
     loadActivity = async (id: string) => {
-        
+
         let activity = this.getActivity(id);
         if (activity) {
             this.setSelectedActivity(activity);
@@ -43,7 +45,7 @@ export default class ActivityStore {
                 this.setSelectedActivity(activity);
                 this.setLoading(false);
                 return activity;
-              
+
             }
             catch (error) {
                 console.log(error);
@@ -54,6 +56,15 @@ export default class ActivityStore {
         }
     }
     setActivity(activity: Activity) {
+        const user = store.userStore.user;
+        if (user) {
+            activity.isGoing = activity.attendees!.some(
+                a => a.username === user.userName
+            )
+            activity.isHost = activity.hostUsername === user.userName;
+            activity.host = activity.attendees?.find(x => x.username === activity.hostUsername)
+
+        }
         activity.date = new Date(activity.date!);
         this.activityRegistry.set(activity.id, activity);
     }
@@ -89,9 +100,9 @@ export default class ActivityStore {
         this.selectedActivity = activity;
         this.editMode = true;
     }
-  
 
-   
+
+
 
     createActivity = async (activity: Activity) => {
         this.setSubmitting(true);
@@ -148,6 +159,32 @@ export default class ActivityStore {
             runInAction(() => {
                 this.submitting = false;
             })
+        }
+    }
+    updateAttendance = async () => {
+        console.log("Called");
+        const user = store.userStore.user;
+        this.submitting = true;
+        try {
+            await agent.Activities.attend(this.selectedActivity!.id);
+            runInAction(() => {
+                if (this.selectedActivity?.isGoing) {
+                    this.selectedActivity.attendees = this.selectedActivity.attendees?.filter(x => x.username !== user?.userName);
+                    this.selectedActivity.isGoing = false;
+                }
+                else {
+                    const attendee = new Profile(user!);
+                    this.selectedActivity?.attendees?.push(attendee);
+                    this.selectedActivity!.isGoing = true;
+                }
+                this.activityRegistry.set(this.selectedActivity!.id, this.selectedActivity!);
+            })
+        }
+        catch (error) {
+            console.log(error)
+        }
+        finally{
+            runInAction(()=> this.submitting = false)
         }
     }
 
