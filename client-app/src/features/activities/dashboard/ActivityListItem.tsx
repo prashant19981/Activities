@@ -23,9 +23,11 @@ const ActivityListItem = ({activity}:Props) =>{
     return(
         <Segment.Group>
             <Segment>
+                {activity.isCancelled &&
+                <Label attached="top" color="red" content='Cancelled' style={{texAlign:'center'}}/>}
                 <Item.Group>
                     <Item>
-                        <Item.Image size="tiny" circular src='/assets/user.png'/>
+                        <Item.Image style={{marginBottom: 3}} size="tiny" circular src='/assets/user.png'/>
                         <Item.Content>
                             <Item.Header as={Link} to ={`/activities/${activity.id}`}>
                                 {activity.title}

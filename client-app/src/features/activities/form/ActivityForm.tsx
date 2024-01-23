@@ -3,7 +3,7 @@ import { Button, Form, Header, Segment } from "semantic-ui-react";
 import { useStore } from "../../../app/stores/store";
 import { observer } from "mobx-react-lite";
 import { useNavigate, useParams } from "react-router-dom";
-import { Activity } from "../../../app/models/activity";
+import { Activity, ActivityFormValues } from "../../../app/models/activity";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { Formik } from "formik";
 import * as Yup from 'yup';
@@ -18,15 +18,7 @@ const ActivityForm = observer(() => {
     const navigate = useNavigate();
     const { activityStore } = useStore();
     const { createActivity, updateActivity, submitting, loadActivity, loading } = activityStore;
-    const [activity, setActivity] = useState<Activity | undefined>({
-        id: '',
-        title: '',
-        date: null,
-        description: '',
-        category: '',
-        city: '',
-        venue: ''
-    });
+    const [activity, setActivity] = useState<ActivityFormValues>(new ActivityFormValues());
 
     const validationSchema = Yup.object({
         title: Yup.string().required('The activity title is required'),
@@ -41,14 +33,14 @@ const ActivityForm = observer(() => {
     useEffect(() => {
         if (id) {
             loadActivity(id).then((activity) => {
-                setActivity(activity!);
+                setActivity(new ActivityFormValues(activity!));
             });
         }
 
 
     }, [id, loadActivity]);
 
-    function handleFormSubmit(activity: Activity) {
+    function handleFormSubmit(activity: ActivityFormValues) {
 
         if (activity) {
             if (!activity.id) {
@@ -91,7 +83,7 @@ const ActivityForm = observer(() => {
                         <TextInput name='venue' placeholder='Venue' />
                         <Button
                             disabled={isSubmitting || !dirty || !isValid}
-                            loading={submitting}
+                            loading={isSubmitting}
                             floated="right"
                             positive type="submit"
                             content='Submit' />
