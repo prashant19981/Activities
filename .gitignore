@@ -18,6 +18,9 @@ _ReSharper*/
 *.dbmdl
 [Tt]est[Dd]ata
 [Tt]est[Aa]pprovals/
+# Ignore appsettings files
+appsettings.json
+appsettings*.json
 
 # Node.js
 node_modules/
