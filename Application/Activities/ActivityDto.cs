@@ -20,7 +20,7 @@ namespace Application.Activities
 
         public Boolean isCancelled {get;set;}
 
-        public ICollection<Profile> Attendees{get;set;}
+        public ICollection<AttendeeDto> Attendees{get;set;}
 
     }
 }
